@@ -1,6 +1,6 @@
 # npmdoc-nforce
 
-#### api documentation for  [nforce (v1.7.0)](https://github.com/kevinohara80/nforce#readme)  [![npm package](https://img.shields.io/npm/v/npmdoc-nforce.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-nforce) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-nforce.svg)](https://travis-ci.org/npmdoc/node-npmdoc-nforce)
+#### basic api documentation for  [nforce (v1.7.0)](https://github.com/kevinohara80/nforce#readme)  [![npm package](https://img.shields.io/npm/v/npmdoc-nforce.svg?style=flat-square)](https://www.npmjs.org/package/npmdoc-nforce) [![travis-ci.org build-status](https://api.travis-ci.org/npmdoc/node-npmdoc-nforce.svg)](https://travis-ci.org/npmdoc/node-npmdoc-nforce)
 
 #### nforce is a REST API wrapper for force.com, database.com, and salesforce.com
 
@@ -90,7 +90,8 @@
         "preversion": "npm test",
         "test": "./node_modules/mocha/bin/mocha ./test --reporter spec"
     },
-    "version": "1.7.0"
+    "version": "1.7.0",
+    "bin": {}
 }
 ```
 
