@@ -5874,23 +5874,7 @@
     <li>description and source-code<pre class="apidocCodePre">createConnection = function (opts) {
   return new Connection(opts);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-Require **nforce** in your app and create a client connection to a
-Salesforce Remote Access Application.
-
-```js
-var nforce = require('nforce');
-
-var org = nforce.<span class="apidocCodeKeywordSpan">createConnection</span>({
-  clientId: 'SOME_OAUTH_CLIENT_ID',
-  clientSecret: 'SOME_OAUTH_CLIENT_SECRET',
-  redirectUri: 'http://localhost:3000/oauth/_callback',
-  apiVersion: 'v27.0',  // optional, defaults to current salesforce API version
-  environment: 'production',  // optional, salesforce 'sandbox' or 'production', production default
-  mode: 'multi' // optional, 'single' or 'multi' user mode, multi default
-});
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -5910,23 +5894,7 @@ var org = nforce.<span class="apidocCodeKeywordSpan">createConnection</span>({
   var rec = new Record(data);
   return rec;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-```
-
-Now we can go nuts. **nforce** has an salesforce sObject factory
-method that creates records for you. Let's use that and insert a
-record...
-
-```js
-var acc = nforce.<span class="apidocCodeKeywordSpan">createSObject</span>('Account');
-acc.set('Name', 'Spiffy Cleaners');
-acc.set('Phone', '800-555-2345');
-acc.set('SLA__c', 'Gold');
-
-org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
-  if(!err) console.log('It worked!');
-});
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6063,21 +6031,22 @@ org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
   return data;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-var opts = this._getOpts(data, callback);
-var type = opts.sobject.getType();
-opts.resource = '/sobjects/' + type;
-opts.method = 'POST';
-if(type === 'document' || type === 'attachment' || type === 'contentversion') {
-  opts.multipart = multipart(opts);
-} else {
-  opts.body = JSON.stringify(opts.sobject.<span class="apidocCodeKeywordSpan">_getPayload</span>(false));
-}
-return this._apiRequest(opts, opts.callback);
-};
+var fileName  = opts.sobject.getFileName();
+var isPatch   = (opts.method === 'PATCH') ? true : false;
+var multipart = [];
 
-Connection.prototype.update = function(data, callback) {
-var opts = this._getOpts(data, callback);
-var type = opts.sobject.getType();
+multipart.push({
+  'content-type': 'application/json',
+  'content-disposition': 'form-data; name="entity_' + entity + '"',
+  body: JSON.stringify(opts.sobject.<span class="apidocCodeKeywordSpan">_getPayload</span>(isPatch))
+});
+
+multipart.push({
+  'content-type': mime.lookup(fileName),
+  'content-disposition': 'form-data; name="' + name + '"; filename="' + fileName + &amp;#
+x27;"',
+  body: opts.sobject.getBody()
+});
 ...</pre></li>
     </ul>
 
@@ -6094,22 +6063,7 @@ var type = opts.sobject.getType();
   this._changed = [];
   this._previous = {};
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-  this._apiRequest(opts, function(err, resp){
-    if(err) {
-      return resolver.reject(err);
-    }
-    if(!opts.raw) {
-      resp = new Record(resp);
-      resp.<span class="apidocCodeKeywordSpan">_reset</span>();
-    }
-    resolver.resolve(resp);
-  });
-
-  return resolver.promise;
-};
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6147,23 +6101,7 @@ var type = opts.sobject.getType();
     return this._fields[field];
   }
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-```js
-org.getAuthUri();
-```
-
-An example of using this function in a typical node route would be:
-
-```js
-app.<span class="apidocCodeKeywordSpan">get</span>('/auth/sfdc', function(req,res){
-  res.redirect(org.getAuthUri());
-});
-```
-
-Once you get a callback at the Redirect URI that you specify, you
-need to request your access token and other important oauth
-information by calling
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6222,23 +6160,7 @@ x27;"',
     <li>description and source-code<pre class="apidocCodePre">getExternalId = function () {
   return this.attributes.externalId;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  return this._apiRequest(opts, opts.callback);
-};
-
-Connection.prototype.upsert = function(data, callback) {
-  var opts = this._getOpts(data, callback);
-  var type = opts.sobject.getType();
-  var extIdField = opts.sobject.getExternalIdField();
-  var extId = opts.sobject.<span class="apidocCodeKeywordSpan">getExternalId</span>();
-  opts.resource = '/sobjects/' + type + '/' + extIdField + '/' + extId;
-  opts.method = 'PATCH';
-  opts.body = JSON.stringify(opts.sobject._getPayload(false));
-  return this._apiRequest(opts, opts.callback);
-};
-
-Connection.prototype.delete = function(data, callback) {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6253,22 +6175,7 @@ Connection.prototype.delete = function(data, callback) {
     <li>description and source-code<pre class="apidocCodePre">getExternalIdField = function () {
   return this.attributes.externalIdField;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  }
-  return this._apiRequest(opts, opts.callback);
-};
-
-Connection.prototype.upsert = function(data, callback) {
-  var opts = this._getOpts(data, callback);
-  var type = opts.sobject.getType();
-  var extIdField = opts.sobject.<span class="apidocCodeKeywordSpan">getExternalIdField</span>();
-  var extId = opts.sobject.getExternalId();
-  opts.resource = '/sobjects/' + type + '/' + extIdField + '/' + extId;
-  opts.method = 'PATCH';
-  opts.body = JSON.stringify(opts.sobject._getPayload(false));
-  return this._apiRequest(opts, opts.callback);
-};
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6314,23 +6221,7 @@ multipart.push({
     <li>description and source-code<pre class="apidocCodePre">getId = function () {
   return this._fields.id;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-};
-
-Connection.prototype.getPasswordStatus = function(data, callback) {
-var opts = this._getOpts(data, callback, {
-  singleProp: 'id'
-});
-
-var id = (opts.sobject) ? opts.sobject.<span class="apidocCodeKeywordSpan">getId</span>() : opts.id;
-opts.resource = '/sobjects/user/' + id + '/password';
-opts.method = 'GET';
-return this._apiRequest(opts, opts.callback);
-};
-
-Connection.prototype.updatePassword = function(data, callback) {
-var opts = this._getOpts(data, callback);
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6347,20 +6238,20 @@ var opts = this._getOpts(data, callback);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
 
-/*****************************
- * crud methods
- *****************************/
 
-Connection.prototype.insert = function(data, callback) {
-var opts = this._getOpts(data, callback);
-var type = opts.sobject.<span class="apidocCodeKeywordSpan">getType</span>();
-opts.resource = '/sobjects/' + type;
-opts.method = 'POST';
-if(type === 'document' || type === 'attachment' || type === 'contentversion') {
-  opts.multipart = multipart(opts);
-} else {
-  opts.body = JSON.stringify(opts.sobject._getPayload(false));
-}
+
+
+var mime = require('mime');
+
+module.exports = function (opts) {
+var type      = opts.sobject.<span class="apidocCodeKeywordSpan">getType</span>();
+var entity    = (type === 'contentversion') ? 'content' : type;
+var name      = (type === 'contentversion') ? 'VersionData' : 'Body';
+var fileName  = opts.sobject.getFileName();
+var isPatch   = (opts.method === 'PATCH') ? true : false;
+var multipart = [];
+
+multipart.push({
 ...</pre></li>
     </ul>
 
@@ -6376,23 +6267,7 @@ if(type === 'document' || type === 'attachment' || type === 'contentversion') {
     <li>description and source-code<pre class="apidocCodePre">getUrl = function () {
   return this.attributes.url;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-will always pass an optional error object, and a response object. The
-response object closely resembles the typical responses from the
-Salesforce REST API.
-
-```js
-var myCallback = function(err, resp);
-
-org.<span class="apidocCodeKeywordSpan">getUrl</span>(url, myCallback);
-```
-
-### Promises
-
-**nforce** also supports promises based on
-[Bluebird](https://github.com/petkaantonov/bluebird). When no
-callback is supplied to an asynchronous method (like an api call),
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6498,23 +6373,7 @@ callback is supplied to an asynchronous method (like an api call),
   });
 
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-Now we can go nuts. **nforce** has an salesforce sObject factory
-method that creates records for you. Let's use that and insert a
-record...
-
-```js
-var acc = nforce.createSObject('Account');
-acc.<span class="apidocCodeKeywordSpan">set</span>('Name', 'Spiffy Cleaners');
-acc.set('Phone', '800-555-2345');
-acc.set('SLA__c', 'Gold');
-
-org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
-  if(!err) console.log('It worked!');
-});
-```
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6633,23 +6492,7 @@ org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
     <li>description and source-code<pre class="apidocCodePre">emptyResponse = function () {
   return new Error('Unexpected empty response');
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  }
-
-  request(opts, function(err, res, body){
-// request returned an error
-if(err) return resolver.reject(err);
-
-// request didn't return a response. sumptin bad happened
-if(!res) return resolver.reject(errors.<span class="apidocCodeKeywordSpan">emptyResponse</span>());
-
-if(body &amp;&amp; util.isJsonResponse(res)) {
-  try {
-    body = JSON.parse(body);
-  } catch (e) {
-    return resolver.reject(errors.invalidJson());
-  }
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6664,23 +6507,7 @@ if(body &amp;&amp; util.isJsonResponse(res)) {
     <li>description and source-code<pre class="apidocCodePre">invalidJson = function () {
   return new Error('Invalid JSON response from Salesforce');
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-// request didn't return a response. sumptin bad happened
-if(!res) return resolver.reject(errors.emptyResponse());
-
-if(body &amp;&amp; util.isJsonResponse(res)) {
-  try {
-    body = JSON.parse(body);
-  } catch (e) {
-    return resolver.reject(errors.<span class="apidocCodeKeywordSpan">invalidJson</span>());
-  }
-}
-
-if(res.statusCode === 200) {
-  // detect oauth response for single mode
-  if(body.access_token) {
-    if(self.mode === 'single') {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -6734,21 +6561,21 @@ if(res.statusCode === 200) {
   });
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-var opts = this._getOpts(data, null, {
-  defaults: {
-    apiVersion: self.apiVersion,
-    timeout: null,
-    retry: null
-  }
-});
-return new FDCStream.<span class="apidocCodeKeywordSpan">Client</span>(opts);
-};
+function Client(opts) {
+var self = this;
+opts = opts || {};
 
-Connection.prototype.subscribe = function(data) {
-var opts = this._getOpts(data, null, {
-  singleProp: 'topic',
-  defaults: {
-    isSystem: false,
+events.EventEmitter.call(this);
+
+this._endpoint = opts.oauth.instance_url + '/cometd/' + opts.apiVersion.substring(1);
+this._fayeClient = new faye.<span class="apidocCodeKeywordSpan">Client</span>(this._endpoint, {
+  timeout: opts.timeout,
+  retry: opts.retry
+});
+this._fayeClient.setHeader('Authorization', 'Bearer ' + opts.oauth.access_token);
+
+this._fayeClient.on('transport:up', function() {
+  self.emit('connect');
 ...</pre></li>
     </ul>
 
@@ -6871,22 +6698,7 @@ var opts = this._getOpts(data, null, {
     res.headers['content-type'] &amp;&amp;
     res.headers['content-type'].split(';')[0].toLowerCase() === 'application/json';
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  request(opts, function(err, res, body){
-// request returned an error
-if(err) return resolver.reject(err);
-
-// request didn't return a response. sumptin bad happened
-if(!res) return resolver.reject(errors.emptyResponse());
-
-if(body &amp;&amp; util.<span class="apidocCodeKeywordSpan">isJsonResponse</span>(res)) {
-  try {
-    body = JSON.parse(body);
-  } catch (e) {
-    return resolver.reject(errors.invalidJson());
-  }
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -7076,24 +6888,7 @@ if(body &amp;&amp; util.<span class="apidocCodeKeywordSpan">isJsonResponse</span
   otherArgs[start] = rest;
   return func.apply(this, otherArgs);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-});
-
-// convert option values
-opts.apiVersion = opts.apiVersion.toString().toLowerCase().replace('v', '').replace('.0', '&amp;#
-x27;);
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.<span class="apidocCodeKeywordSpan">assign</span>(this, opts);
-
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -7286,23 +7081,7 @@ if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
   otherArgs[start] = rest;
   return func.apply(this, otherArgs);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-   opts.plugins.forEach(function(pname) {
-     if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-     // clone the object
-     self[pname] = _.clone(plugins[pname]._fns);
-
-     // now bind to the connection object
-     _.forOwn(self[pname], function(fn, key) {
-       self[pname][key] = _.<span class="apidocCodeKeywordSpan">bind</span>(self[pname][key], self);
-     });
-   });
- }
-};
-
-/*****************************
-* auth getters/setters
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -7535,23 +7314,7 @@ if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
     ? baseClone(value, isDeep, bindCallback(customizer, thisArg, 1))
     : baseClone(value, isDeep);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-this.timeout = parseInt(this.timeout, 10);
-
-// load plugins
-if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-  opts.plugins.forEach(function(pname) {
-    if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-    // clone the object
-    self[pname] = _.<span class="apidocCodeKeywordSpan">clone</span>(plugins[pname]._fns);
-
-    // now bind to the connection object
-    _.forOwn(self[pname], function(fn, key) {
-      self[pname][key] = _.bind(self[pname][key], self);
-    });
-  });
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -7972,23 +7735,7 @@ if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
   otherArgs[start] = rest;
   return func.apply(this, otherArgs);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-/*****************************
- * connection object
- *****************************/
-
-var Connection = function(opts) {
-var self = this;
-
-opts = _.<span class="apidocCodeKeywordSpan">defaults</span>(opts || {}, {
-  clientId:         null,
-  clientSecret:     null,
-  redirectUri:      null,
-  authEndpoint:     AUTH_ENDPOINT,
-  testAuthEndpoint: TEST_AUTH_ENDPOINT,
-  loginUri:         LOGIN_URI,
-  testLoginUri:     TEST_LOGIN_URI,
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -8240,23 +7987,7 @@ opts = _.<span class="apidocCodeKeywordSpan">defaults</span>(opts || {}, {
     ? arrayFunc(collection, iteratee)
     : eachFunc(collection, bindCallback(iteratee, thisArg, 3));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-};
-
-function handleResults(err, resp) {
-  if(err) {
-    return resolver.reject(err);
-  } else {
-    if(resp.records &amp;&amp; resp.records.length &gt; 0) {
-      _.<span class="apidocCodeKeywordSpan">each</span>(resp.records, function(r) {
-        if(opts.raw) {
-          recs.push(r);
-        } else {
-          var rec = new Record(r);
-          rec._reset();
-          recs.push(rec);
-        }
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -8811,23 +8542,7 @@ function handleResults(err, resp) {
     ? arrayFunc(collection, iteratee)
     : eachFunc(collection, bindCallback(iteratee, thisArg, 3));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  }
-
-  // parse timeout into integer in case it's a floating point.
-  this.timeout = parseInt(this.timeout, 10);
-
-  // load plugins
-  if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-    opts.plugins.<span class="apidocCodeKeywordSpan">forEach</span>(function(pname) {
-if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-// clone the object
-self[pname] = _.clone(plugins[pname]._fns);
-
-// now bind to the connection object
-_.forOwn(self[pname], function(fn, key) {
-  self[pname][key] = _.bind(self[pname][key], self);
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -8898,23 +8613,7 @@ _.forOwn(self[pname], function(fn, key) {
   }
   return objectFunc(object, iteratee);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-    opts.plugins.forEach(function(pname) {
-      if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-      // clone the object
-      self[pname] = _.clone(plugins[pname]._fns);
-
-      // now bind to the connection object
-      _.<span class="apidocCodeKeywordSpan">forOwn</span>(self[pname], function(fn, key) {
-        self[pname][key] = _.bind(self[pname][key], self);
-      });
-    });
-  }
-};
-
-/*****************************
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -8963,23 +8662,7 @@ _.forOwn(self[pname], function(fn, key) {
   var result = object == null ? undefined : baseGet(object, toPath(path), path + '');
   return result === undefined ? defaultValue : result;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-```js
-org.getAuthUri();
-```
-
-An example of using this function in a typical node route would be:
-
-```js
-app.<span class="apidocCodeKeywordSpan">get</span>('/auth/sfdc', function(req,res){
-  res.redirect(org.getAuthUri());
-});
-```
-
-Once you get a callback at the Redirect URI that you specify, you
-need to request your access token and other important oauth
-information by calling
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9235,23 +8918,7 @@ information by calling
   }
   return baseIndexOf(array, value, fromIndex || 0);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.<span class="apidocCodeKeywordSpan">indexOf</span>(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout must be a number');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9419,23 +9086,7 @@ if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout m
     </h2>
     <ul>
     <li>description and source-code<pre class="apidocCodePre">function isArray() { [native code] }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-    throw new Error('invalid apiVersion number');
-  }
-
-  // parse timeout into integer in case it's a floating point.
-  this.timeout = parseInt(this.timeout, 10);
-
-  // load plugins
-  if(opts.plugins &amp;&amp; _.<span class="apidocCodeKeywordSpan">isArray</span>(opts.plugins)) {
-    opts.plugins.forEach(function(pname) {
-if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-// clone the object
-self[pname] = _.clone(plugins[pname]._fns);
-
-// now bind to the connection object
-_.forOwn(self[pname], function(fn, key) {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9450,23 +9101,7 @@ _.forOwn(self[pname], function(fn, key) {
     <li>description and source-code<pre class="apidocCodePre">function isBoolean(value) {
   return value === true || value === false || (isObjectLike(value) &amp;&amp; objToString.call(value) == boolTag);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.<span class="apidocCodeKeywordSpan">isBoolean</span>(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9583,24 +9218,7 @@ if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onR
   // and Safari 8 equivalents which return 'object' for typed array constructors.
   return isObject(value) &amp;&amp; objToString.call(value) == funcTag;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isFunction</span>(this.onRefresh)) throw new Error('onRefresh
- must be a function');
-if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout must be a number');
-
-// parse api version
-try {
-  this.apiVersion = 'v' + parseInt(this.apiVersion, 10) + '.0';
-} catch (err) {
-  throw new Error('invalid apiVersion number');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9684,24 +9302,7 @@ try {
     <li>description and source-code<pre class="apidocCodePre">function isNumber(value) {
   return typeof value == 'number' || (isObjectLike(value) &amp;&amp; objToString.call(value) == numberTag);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-if(this.timeout &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isNumber</span>(this.timeout)) throw new Error('timeout
- must be a number');
-
-// parse api version
-try {
-  this.apiVersion = 'v' + parseInt(this.apiVersion, 10) + '.0';
-} catch (err) {
-  throw new Error('invalid apiVersion number');
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9719,23 +9320,7 @@ try {
   var type = typeof value;
   return !!value &amp;&amp; (type == 'object' || type == 'function');
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  cb = d;
-  dt = null;
-} else {
-  cb = c;
-  dt = d;
-}
-
-if(opts.singleProp &amp;&amp; dt &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isObject</span>(dt)) {
-  data = {};
-  data[opts.singleProp] = dt;
-} else if(_.isObject(dt)) {
-  data = dt;
-} else {
-  data = {};
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -9798,25 +9383,7 @@ if(opts.singleProp &amp;&amp; dt &amp;&amp; !_.<span class="apidocCodeKeywordSpa
     <li>description and source-code<pre class="apidocCodePre">function isString(value) {
   return typeof value == 'string' || (isObjectLike(value) &amp;&amp; objToString.call(value) == stringTag);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-opts.apiVersion = opts.apiVersion.toString().toLowerCase().replace('v', '').replace('.0', '&amp;#
-x27;);
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.assign(this, opts);
-
-// validate options
-if(!_.<span class="apidocCodeKeywordSpan">isString</span>(this.clientId)) throw new Error('invalid or missing clientId'
-;);
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -10219,23 +9786,7 @@ if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
   otherArgs[start] = rest;
   return func.apply(this, otherArgs);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  // set timeout
-  if(this.timeout) {
-opts.timeout = this.timeout;
-  }
-
-  // process request opts
-  if(opts.requestOpts) {
-_.<span class="apidocCodeKeywordSpan">merge</span>(opts, opts.requestOpts);
-  }
-
-  request(opts, function(err, res, body){
-// request returned an error
-if(err) return resolver.reject(err);
-
-// request didn't return a response. sumptin bad happened
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -11111,23 +10662,7 @@ if(err) return resolver.reject(err);
     return !predicate(value, index, collection);
   });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-    this.setSecurityToken(bopts.securityToken);
-  }
-}
-
-opts.body = qs.stringify(bopts);
-
-this._apiAuthRequest(opts, function(err, res) {
-  if(err) return resolver.<span class="apidocCodeKeywordSpan">reject</span>(err);
-  var old = _.clone(opts.oauth);
-  _.assign(opts.oauth, res);
-  if(opts.assertion) opts.oauth.assertion = opts.assertion;
-  if(self.onRefresh &amp;&amp; opts.executeOnRefresh === true) {
-    self.onRefresh.call(self, opts.oauth, old, function(err3){
-      if(err3) return resolver.reject(err3);
-      else return resolver.resolve(opts.oauth);
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -11495,23 +11030,7 @@ this._apiAuthRequest(opts, function(err, res) {
   }
   return object;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-Now we can go nuts. **nforce** has an salesforce sObject factory
-method that creates records for you. Let's use that and insert a
-record...
-
-```js
-var acc = nforce.createSObject('Account');
-acc.<span class="apidocCodeKeywordSpan">set</span>('Name', 'Spiffy Cleaners');
-acc.set('Phone', '800-555-2345');
-acc.set('SLA__c', 'Gold');
-
-org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
-  if(!err) console.log('It worked!');
-});
-```
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -12901,24 +12420,7 @@ org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-});
-
-// convert option values
-opts.apiVersion = opts.apiVersion.toString().toLowerCase().replace('v', '').replace('.0', '&amp;#
-x27;);
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.<span class="apidocCodeKeywordSpan">assign</span>(this, opts);
-
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -13038,23 +12540,7 @@ if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-   opts.plugins.forEach(function(pname) {
-     if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-     // clone the object
-     self[pname] = _.clone(plugins[pname]._fns);
-
-     // now bind to the connection object
-     _.forOwn(self[pname], function(fn, key) {
-       self[pname][key] = _.<span class="apidocCodeKeywordSpan">bind</span>(self[pname][key], self);
-     });
-   });
- }
-};
-
-/*****************************
-* auth getters/setters
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -13277,23 +12763,7 @@ if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-this.timeout = parseInt(this.timeout, 10);
-
-// load plugins
-if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-  opts.plugins.forEach(function(pname) {
-    if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-    // clone the object
-    self[pname] = _.<span class="apidocCodeKeywordSpan">clone</span>(plugins[pname]._fns);
-
-    // now bind to the connection object
-    _.forOwn(self[pname], function(fn, key) {
-      self[pname][key] = _.bind(self[pname][key], self);
-    });
-  });
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -13706,23 +13176,7 @@ if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-/*****************************
- * connection object
- *****************************/
-
-var Connection = function(opts) {
-var self = this;
-
-opts = _.<span class="apidocCodeKeywordSpan">defaults</span>(opts || {}, {
-  clientId:         null,
-  clientSecret:     null,
-  redirectUri:      null,
-  authEndpoint:     AUTH_ENDPOINT,
-  testAuthEndpoint: TEST_AUTH_ENDPOINT,
-  loginUri:         LOGIN_URI,
-  testLoginUri:     TEST_LOGIN_URI,
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -14014,23 +13468,7 @@ opts = _.<span class="apidocCodeKeywordSpan">defaults</span>(opts || {}, {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-};
-
-function handleResults(err, resp) {
-  if(err) {
-    return resolver.reject(err);
-  } else {
-    if(resp.records &amp;&amp; resp.records.length &gt; 0) {
-      _.<span class="apidocCodeKeywordSpan">each</span>(resp.records, function(r) {
-        if(opts.raw) {
-          recs.push(r);
-        } else {
-          var rec = new Record(r);
-          rec._reset();
-          recs.push(rec);
-        }
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -14682,23 +14120,7 @@ function handleResults(err, resp) {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  }
-
-  // parse timeout into integer in case it's a floating point.
-  this.timeout = parseInt(this.timeout, 10);
-
-  // load plugins
-  if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-    opts.plugins.<span class="apidocCodeKeywordSpan">forEach</span>(function(pname) {
-if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-// clone the object
-self[pname] = _.clone(plugins[pname]._fns);
-
-// now bind to the connection object
-_.forOwn(self[pname], function(fn, key) {
-  self[pname][key] = _.bind(self[pname][key], self);
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -14794,23 +14216,7 @@ _.forOwn(self[pname], function(fn, key) {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  if(opts.plugins &amp;&amp; _.isArray(opts.plugins)) {
-    opts.plugins.forEach(function(pname) {
-      if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-      // clone the object
-      self[pname] = _.clone(plugins[pname]._fns);
-
-      // now bind to the connection object
-      _.<span class="apidocCodeKeywordSpan">forOwn</span>(self[pname], function(fn, key) {
-        self[pname][key] = _.bind(self[pname][key], self);
-      });
-    });
-  }
-};
-
-/*****************************
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -14882,23 +14288,7 @@ _.forOwn(self[pname], function(fn, key) {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-```js
-org.getAuthUri();
-```
-
-An example of using this function in a typical node route would be:
-
-```js
-app.<span class="apidocCodeKeywordSpan">get</span>('/auth/sfdc', function(req,res){
-  res.redirect(org.getAuthUri());
-});
-```
-
-Once you get a callback at the Redirect URI that you specify, you
-need to request your access token and other important oauth
-information by calling
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15188,23 +14578,7 @@ information by calling
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.<span class="apidocCodeKeywordSpan">indexOf</span>(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout must be a number');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15398,23 +14772,7 @@ if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout m
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-    throw new Error('invalid apiVersion number');
-  }
-
-  // parse timeout into integer in case it's a floating point.
-  this.timeout = parseInt(this.timeout, 10);
-
-  // load plugins
-  if(opts.plugins &amp;&amp; _.<span class="apidocCodeKeywordSpan">isArray</span>(opts.plugins)) {
-    opts.plugins.forEach(function(pname) {
-if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-// clone the object
-self[pname] = _.clone(plugins[pname]._fns);
-
-// now bind to the connection object
-_.forOwn(self[pname], function(fn, key) {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15438,23 +14796,7 @@ _.forOwn(self[pname], function(fn, key) {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.<span class="apidocCodeKeywordSpan">isBoolean</span>(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15622,24 +14964,7 @@ if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onR
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isFunction</span>(this.onRefresh)) throw new Error('onRefresh
- must be a function');
-if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout must be a number');
-
-// parse api version
-try {
-  this.apiVersion = 'v' + parseInt(this.apiVersion, 10) + '.0';
-} catch (err) {
-  throw new Error('invalid apiVersion number');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15759,24 +15084,7 @@ try {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.join(' and ') + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-if(this.timeout &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isNumber</span>(this.timeout)) throw new Error('timeout
- must be a number');
-
-// parse api version
-try {
-  this.apiVersion = 'v' + parseInt(this.apiVersion, 10) + '.0';
-} catch (err) {
-  throw new Error('invalid apiVersion number');
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15800,23 +15108,7 @@ try {
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  cb = d;
-  dt = null;
-} else {
-  cb = c;
-  dt = d;
-}
-
-if(opts.singleProp &amp;&amp; dt &amp;&amp; !_.<span class="apidocCodeKeywordSpan">isObject</span>(dt)) {
-  data = {};
-  data[opts.singleProp] = dt;
-} else if(_.isObject(dt)) {
-  data = dt;
-} else {
-  data = {};
-}
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15888,25 +15180,7 @@ if(opts.singleProp &amp;&amp; dt &amp;&amp; !_.<span class="apidocCodeKeywordSpa
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-opts.apiVersion = opts.apiVersion.toString().toLowerCase().replace('v', '').replace('.0', '&amp;#
-x27;);
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.assign(this, opts);
-
-// validate options
-if(!_.<span class="apidocCodeKeywordSpan">isString</span>(this.clientId)) throw new Error('invalid or missing clientId'
-;);
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -15999,23 +15273,7 @@ if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
     return func.apply(value, args);
   });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-if(!_.isString(this.redirectUri)) throw new Error('invalid or missing redirectUri');
-if(!_.isString(this.authEndpoint)) throw new Error('invalid or missing authEndpoint');
-if(!_.isString(this.testAuthEndpoint)) throw new Error('invalid or missing testAuthEndpoint');
-if(!_.isString(this.loginUri)) throw new Error('invalid or missing loginUri');
-if(!_.isString(this.testLoginUri)) throw new Error('invalid or missing testLoginUri');
-if(!_.isBoolean(this.gzip)) throw new Error('gzip must be a boolean');
-if(!_.isString(this.environment) || _.indexOf(ENVS, this.environment) === -1) {
-  throw new Error('invalid environment, only ' + ENVS.<span class="apidocCodeKeywordSpan">join</span>(' and '
-;) + ' are allowed');
-}
-if(!_.isString(this.mode) || _.indexOf(MODES, this.mode) === -1) {
-  throw new Error('invalid mode, only ' + MODES.join(' and ') + ' are allowed');
-}
-if(this.onRefresh &amp;&amp; !_.isFunction(this.onRefresh)) throw new Error('onRefresh must be a function');
-if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout must be a number');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -16427,23 +15685,7 @@ if(this.timeout &amp;&amp; !_.isNumber(this.timeout)) throw new Error('timeout m
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  // set timeout
-  if(this.timeout) {
-opts.timeout = this.timeout;
-  }
-
-  // process request opts
-  if(opts.requestOpts) {
-_.<span class="apidocCodeKeywordSpan">merge</span>(opts, opts.requestOpts);
-  }
-
-  request(opts, function(err, res, body){
-// request returned an error
-if(err) return resolver.reject(err);
-
-// request didn't return a response. sumptin bad happened
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -17189,21 +16431,21 @@ if(err) return resolver.reject(err);
   });
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-  function handleResults(err, resp) {
-if(err) {
-  return resolver.reject(err);
-} else {
-  if(resp.records &amp;&amp; resp.records.length &gt; 0) {
-    _.each(resp.records, function(r) {
-      if(opts.raw) {
-        recs.<span class="apidocCodeKeywordSpan">push</span>(r);
-      } else {
-        var rec = new Record(r);
-        rec._reset();
-        recs.push(rec);
-      }
-    });
-  }
+var type      = opts.sobject.getType();
+var entity    = (type === 'contentversion') ? 'content' : type;
+var name      = (type === 'contentversion') ? 'VersionData' : 'Body';
+var fileName  = opts.sobject.getFileName();
+var isPatch   = (opts.method === 'PATCH') ? true : false;
+var multipart = [];
+
+multipart.<span class="apidocCodeKeywordSpan">push</span>({
+  'content-type': 'application/json',
+  'content-disposition': 'form-data; name="entity_' + entity + '"',
+  body: JSON.stringify(opts.sobject._getPayload(isPatch))
+});
+
+multipart.push({
+  'content-type': mime.lookup(fileName),
 ...</pre></li>
     </ul>
 
@@ -17374,23 +16616,7 @@ if(err) {
   }
   return this.thru(interceptor);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-    this.setSecurityToken(bopts.securityToken);
-  }
-}
-
-opts.body = qs.stringify(bopts);
-
-this._apiAuthRequest(opts, function(err, res) {
-  if(err) return resolver.<span class="apidocCodeKeywordSpan">reject</span>(err);
-  var old = _.clone(opts.oauth);
-  _.assign(opts.oauth, res);
-  if(opts.assertion) opts.oauth.assertion = opts.assertion;
-  if(self.onRefresh &amp;&amp; opts.executeOnRefresh === true) {
-    self.onRefresh.call(self, opts.oauth, old, function(err3){
-      if(err3) return resolver.reject(err3);
-      else return resolver.resolve(opts.oauth);
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -17459,24 +16685,7 @@ this._apiAuthRequest(opts, function(err, res) {
     return func.apply(value, args);
   });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  oauth:            undefined,
-  username:         undefined,
-  password:         undefined,
-  securityToken:    undefined
-});
-
-// convert option values
-opts.apiVersion = opts.apiVersion.toString().toLowerCase().<span class="apidocCodeKeywordSpan">replace</span>('v', '
-;').replace('.0', '');
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.assign(this, opts);
-
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -17760,23 +16969,7 @@ if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
   }
   return func.apply(object, arrayPush([this.value()], arguments));
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-Now we can go nuts. **nforce** has an salesforce sObject factory
-method that creates records for you. Let's use that and insert a
-record...
-
-```js
-var acc = nforce.createSObject('Account');
-acc.<span class="apidocCodeKeywordSpan">set</span>('Name', 'Spiffy Cleaners');
-acc.set('Phone', '800-555-2345');
-acc.set('SLA__c', 'Gold');
-
-org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
-  if(!err) console.log('It worked!');
-});
-```
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -17797,23 +16990,7 @@ org.insert({ sobject: acc, oauth: oauth }, function(err, resp){
     return func.apply(value, args);
   });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-var pkg = require('./package.json');
-
-if(!pkg || !pkg.scripts || !pkg.scripts.test) {
-  return cb(new Error('No test script provided in package.json'));
-}
-
-var args = pkg.scripts.test.split(' ');
-var cmd  = args.<span class="apidocCodeKeywordSpan">shift</span>();
-
-var test = spawn(cmd, args, { stdio: 'inherit' });
-
-test.on('close', function(code) {
-  if(code !== 0) {
-    return cb(new Error('mocha test failures'));
-  }
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -18142,23 +17319,7 @@ test.on('close', function(code) {
     return func.apply(value, args);
   });
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-var pkg = require('./package.json');
-
-if(!pkg || !pkg.scripts || !pkg.scripts.test) {
-  return cb(new Error('No test script provided in package.json'));
-}
-
-var args = pkg.scripts.test.<span class="apidocCodeKeywordSpan">split</span>(' ');
-var cmd  = args.shift();
-
-var test = spawn(cmd, args, { stdio: 'inherit' });
-
-test.on('close', function(code) {
-  if(code !== 0) {
-    return cb(new Error('mocha test failures'));
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -18728,24 +17889,7 @@ test.on('close', function(code) {
     <li>description and source-code<pre class="apidocCodePre">function wrapperToString() {
   return (this.value() + '');
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  oauth:            undefined,
-  username:         undefined,
-  password:         undefined,
-  securityToken:    undefined
-});
-
-// convert option values
-opts.apiVersion = opts.apiVersion.<span class="apidocCodeKeywordSpan">toString</span>().toLowerCase().replace('v', '
-;').replace('.0', '');
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.assign(this, opts);
-
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -19412,22 +18556,7 @@ if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
     promise: (defer) ? defer.promise : undefined
   };
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-Connection.prototype.authenticate = function(data, callback) {
-var self = this;
-var opts = _.defaults(this._getOpts(data, callback), {
-  executeOnRefresh: false,
-  oauth: {}
-});
-var resolver = promises.<span class="apidocCodeKeywordSpan">createResolver</span>(opts.callback);
-
-opts.uri = (self.environment == 'sandbox') ? this.testLoginUri : this.loginUri;
-opts.method = 'POST';
-opts.headers = {
-  'Content-Type': 'application/x-www-form-urlencoded'
-};
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -21241,23 +20370,7 @@ opts.headers = {
     }
     return ret;
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-   opts.plugins.forEach(function(pname) {
-     if(!plugins[pname]) throw new Error('plugin ' + pname + ' not found');
-     // clone the object
-     self[pname] = _.clone(plugins[pname]._fns);
-
-     // now bind to the connection object
-     _.forOwn(self[pname], function(fn, key) {
-       self[pname][key] = _.<span class="apidocCodeKeywordSpan">bind</span>(self[pname][key], self);
-     });
-   });
- }
-};
-
-/*****************************
-* auth getters/setters
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -21285,21 +20398,20 @@ opts.headers = {
     return this._then(caller, undefined, undefined, args, undefined);
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
+var faye   = require('faye');
 
-this._apiAuthRequest(opts, function(err, res) {
-  if(err) return resolver.reject(err);
-  var old = _.clone(opts.oauth);
-  _.assign(opts.oauth, res);
-  if(opts.assertion) opts.oauth.assertion = opts.assertion;
-  if(self.onRefresh &amp;&amp; opts.executeOnRefresh === true) {
-    self.onRefresh.<span class="apidocCodeKeywordSpan">call</span>(self, opts.oauth, old, function(err3){
-      if(err3) return resolver.reject(err3);
-      else return resolver.resolve(opts.oauth);
-    });
-  } else {
-    resolver.resolve(opts.oauth);
-  }
-});
+function Subscription(opts, client) {
+var self = this;
+this.client = client;
+opts = opts || {};
+
+events.EventEmitter.<span class="apidocCodeKeywordSpan">call</span>(this);
+
+if(opts.isSystem) {
+  this._topic = '/systemTopic/' + opts.topic;
+} else {
+  this._topic = '/topic/' + opts.topic;
+}
 ...</pre></li>
     </ul>
 
@@ -21319,21 +20431,21 @@ this._apiAuthRequest(opts, function(err, res) {
     return this;
 }</pre></li>
     <li>example usage<pre class="apidocCodePre">...
-}, 5000);
-```
+  self.emit('error', err);
+});
+}
 
-When you are done with your subscription you can close it. You can
-also disconnect the client connection.
+util.inherits(Subscription, events.EventEmitter);
 
-```js
-accs.<span class="apidocCodeKeywordSpan">cancel</span>();
-client.disconnect();
-```
+Subscription.prototype.cancel = function() {
+if(this._sub) this._sub.<span class="apidocCodeKeywordSpan">cancel</span>();
+};
 
-### Plugins
+// Client definition
 
-As of **nforce** v0.7.0, a plugin API is now exposed so that the
-capabilities of nforce can easily be extended. This plugin system
+function Client(opts) {
+var self = this;
+opts = opts || {};
 ...</pre></li>
     </ul>
 
@@ -21488,23 +20600,7 @@ capabilities of nforce can easily be extended. This plugin system
     <li>description and source-code<pre class="apidocCodePre">each = function (fn) {
     return PromiseReduce(this, fn, null, INTERNAL);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-};
-
-function handleResults(err, resp) {
-  if(err) {
-    return resolver.reject(err);
-  } else {
-    if(resp.records &amp;&amp; resp.records.length &gt; 0) {
-      _.<span class="apidocCodeKeywordSpan">each</span>(resp.records, function(r) {
-        if(opts.raw) {
-          recs.push(r);
-        } else {
-          var rec = new Record(r);
-          rec._reset();
-          recs.push(rec);
-        }
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -21519,23 +20615,7 @@ function handleResults(err, resp) {
     <li>description and source-code<pre class="apidocCodePre">error = function (fn) {
     return this.caught(util.originatesFromRejection, fn);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-connection, calling authenticate will store the OAuth object within
-the connection object. Then, in subsequent API requests, you can
-simply omit the OAuth object from the request like so.
-
-```js
-// look ma, no oauth argument!
-org.query({ query: 'SELECT Id FROM Lead LIMIT 1' }, function(err, res) {
-  if(err) return console.<span class="apidocCodeKeywordSpan">error</span>(err);
-  else return console.log(res.records[0]);
-});
-```
-
-### Access Token Auto-Refreshes
-
-**nforce** provides an optional, built-in function for
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -21612,23 +20692,7 @@ org.query({ query: 'SELECT Id FROM Lead LIMIT 1' }, function(err, res) {
     }
     return this._then(getter, undefined, undefined, propertyName, undefined);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-```js
-org.getAuthUri();
-```
-
-An example of using this function in a typical node route would be:
-
-```js
-app.<span class="apidocCodeKeywordSpan">get</span>('/auth/sfdc', function(req,res){
-  res.redirect(org.getAuthUri());
-});
-```
-
-Once you get a callback at the Redirect URI that you specify, you
-need to request your access token and other important oauth
-information by calling
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -21974,23 +21038,7 @@ information by calling
     return this._then(didFulfill, didReject, didProgress,
         undefined, undefined);
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-
-**nforce** also supports promises based on
-[Bluebird](https://github.com/petkaantonov/bluebird). When no
-callback is supplied to an asynchronous method (like an api call),
-a promise will be returned. This makes control-flow very simple.
-
-```js
-org.authenticate({ username: un, password: pw }).<span class="apidocCodeKeywordSpan">then</span>(function(){
-  return org.getResources();
-}).then(function(resources) {
-  console.log('resources: ' + resources);
-}).error(function(err) {
-  console.error('there was a problem');
-});
-```
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
@@ -22134,24 +21182,7 @@ org.authenticate({ username: un, password: pw }).<span class="apidocCodeKeywordS
     <li>description and source-code<pre class="apidocCodePre">toString = function () {
     return "[object Promise]";
 }</pre></li>
-    <li>example usage<pre class="apidocCodePre">...
-  oauth:            undefined,
-  username:         undefined,
-  password:         undefined,
-  securityToken:    undefined
-});
-
-// convert option values
-opts.apiVersion = opts.apiVersion.<span class="apidocCodeKeywordSpan">toString</span>().toLowerCase().replace('v', '
-;').replace('.0', '');
-opts.environment = opts.environment.toLowerCase();
-opts.mode = opts.mode.toLowerCase();
-
-self = _.assign(this, opts);
-
-// validate options
-if(!_.isString(this.clientId)) throw new Error('invalid or missing clientId');
-...</pre></li>
+    <li>example usage<pre class="apidocCodePre">n/a</pre></li>
     </ul>
 
 
